@@ -17,10 +17,12 @@ dependencies:
   flutter_bloc: 8.0.1
   bloc_test: 9.0.3
   get_it: 7.2.0
-  injectable: 1.5.3
   freezed_annotation: 1.1.0
-  dartz: 0.10.1
+  # dartz: 0.10.1
   floor: 1.2.0
+  auto_route: 3.2.4
+  intl: 0.17.0
+  modal_bottom_sheet: 2.0.1
 
 dev_dependencies:
   flutter_test:
@@ -28,9 +30,9 @@ dev_dependencies:
 
   flutter_lints: 1.0.4
   build_runner: 2.1.10
-  injectable_generator: 1.5.2
   freezed: 1.1.0
   floor_generator: 1.2.0
+  auto_route_generator: 3.2.3
 
 flutter:
   uses-material-design: true
