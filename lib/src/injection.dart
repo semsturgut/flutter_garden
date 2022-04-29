@@ -1,13 +1,34 @@
-import 'package:flutter_garden/src/injection.config.dart';
+import 'package:flutter_garden/src/data/datasources/app_database.dart';
+import 'package:flutter_garden/src/data/repositories/plants_repository_impl.dart';
+import 'package:flutter_garden/src/data/services/plants_service_impl.dart';
+import 'package:flutter_garden/src/domain/repositories/plants_repository.dart';
+import 'package:flutter_garden/src/domain/services/plants_service.dart';
+import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_cubit.dart';
 import 'package:get_it/get_it.dart';
-import 'package:injectable/injectable.dart';
+
+import 'presentation/add_or_edit_plant_page/add_or_edit_plant_cubit.dart';
+
+const String _databaseName = 'app_database.db';
 
 final GetIt getIt = GetIt.instance;
 
-@InjectableInit(generateForDir: ['lib', 'bin', 'test'])
-Future<void> configureInjection(String environment) async {
-  $initGetIt(getIt, environment: environment);
-}
+Future<void> configureInjection() async {
+  final database = await $FloorAppDatabase.databaseBuilder(_databaseName).build();
+  getIt.registerSingleton<AppDatabase>(database);
 
-@module
-abstract class RegisterModule {}
+  getIt.registerSingleton<PlantsRepository>(
+    PlantsRepositoryImpl(getIt()),
+  );
+
+  getIt.registerSingleton<PlantsService>(
+    PlantsServiceImpl(getIt()),
+  );
+
+  getIt.registerFactory<PlantListCubit>(
+    () => PlantListCubit(getIt()),
+  );
+
+  getIt.registerFactory<AddOrEditPlantCubit>(
+    () => AddOrEditPlantCubit(getIt()),
+  );
+}
