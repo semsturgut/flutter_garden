@@ -2,19 +2,38 @@ import 'package:floor/floor.dart';
 
 @entity
 class Plant {
-  @primaryKey
-  late String shortName;
-  final int uniqueId;
+  @PrimaryKey(autoGenerate: true)
+  final int? id;
+  final String shortName;
   final String name;
   final PlantType plantType;
   final DateTime plantingDate;
 
   Plant({
-    required this.uniqueId,
     required this.name,
     required this.plantType,
     required this.plantingDate,
-  }) : shortName = (name[0] + name[name.length - 1]).toUpperCase();
+    this.id,
+  }) : shortName = name.length < 2 ? "" : (name[0] + name[name.length - 1]).toUpperCase();
+
+  factory Plant.emptyPlant() => Plant(
+        name: "",
+        plantType: PlantType.alpines,
+        plantingDate: DateTime.now(),
+      );
+
+  // instead of copyWith we can use equatable package.
+  Plant copyWith({
+    String? name,
+    PlantType? plantType,
+    DateTime? plantingDate,
+  }) =>
+      Plant(
+        id: id,
+        name: name ?? this.name,
+        plantType: plantType ?? this.plantType,
+        plantingDate: plantingDate ?? this.plantingDate,
+      );
 }
 
 enum PlantType {

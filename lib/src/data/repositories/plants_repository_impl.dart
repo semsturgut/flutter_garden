@@ -8,8 +8,17 @@ class PlantsRepositoryImpl implements PlantsRepository {
   const PlantsRepositoryImpl(this._appDatabase);
 
   @override
-  Future<List<Plant>> getSavedPlants() => _appDatabase.plantDao.findAllPlants();
+  Future<List<Plant>> getSavedPlants(int offset) => _appDatabase.plantDao.findAllPlants(offset);
 
   @override
-  Future<void> savePlant(Plant plant) => _appDatabase.plantDao.insertPlant(plant);
+  Future<List<Plant>> findPlantsByName(String name) => _appDatabase.plantDao.findPlantsByName(name);
+
+  @override
+  Future<Plant?> findPlantById(int id)=> _appDatabase.plantDao.findPlantById(id);
+
+  @override
+  Future<void> insertPlant(Plant plant) => _appDatabase.plantDao.insertPlant(plant);
+
+  @override
+  Future<void> updatePlant(Plant plant) => _appDatabase.plantDao.updatePlant(plant);
 }
