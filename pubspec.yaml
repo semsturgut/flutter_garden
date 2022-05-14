@@ -16,7 +16,7 @@ dependencies:
   bloc: 8.0.3
   flutter_bloc: 8.0.1
   bloc_test: 9.0.3
-  get_it: 7.2.0
+  get_it: 7.2.0 # We could use injectable
   freezed_annotation: 1.1.0
   # dartz: 0.10.1
   floor: 1.2.0
