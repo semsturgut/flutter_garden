@@ -10,30 +10,48 @@ class AddOrEditPlantCubit extends Cubit<AddOrEditPlantState> {
   final PlantsService _plantsService;
   AddOrEditPlantCubit(this._plantsService) : super(const ShowLoading());
 
-  // Plant? _plant;
+  late Plant _plant;
 
   Future<void> initialize(Plant? plant) async {
-    // _plant = plant;
+    _updateFieldsFromPlant(plant);
+    _showView();
+  }
+
+  void onNameChange(String name) {
+    _plant = _plant.copyWith(name: name);
+    _showView();
+  }
+
+  void onTypeChange(PlantType plantType) {
+    _plant = _plant.copyWith(plantType: plantType);
+    _showView();
+  }
+
+  void onDateChange(DateTime plantDate) {
+    _plant = _plant.copyWith(plantingDate: plantDate);
     _showView();
   }
 
   Future<void> onSave() async {
     try {
-      await _plantsService.savePlant(
-        Plant(
-          uniqueId: 1,
-          name: "Sems123",
-          plantType: PlantType.alpines,
-          plantingDate: DateTime.now(),
-        ),
-      );
-    } catch (_) {
-      emit(const ShowError());
+      _checkIfFieldsEmpty();
+      await _plantsService.insertOrUpdatePlant(_plant);
+      emit(PlantSaved(_plant));
+    } catch (e) {
+      emit(ShowError(e.toString()));
     }
     _showView();
   }
 
+  void _updateFieldsFromPlant(Plant? plant) => _plant = plant ?? Plant.emptyPlant();
+
   void _showView() {
-    emit(const ShowView());
+    emit(ShowView(plant: _plant));
+  }
+
+  void _checkIfFieldsEmpty() {
+    if (_plant.name == "") throw "Please fill the name field.";
+    if (_plant.name.length < 2) throw "Name should be at least 2 characters.";
+    if (_plant.name.length > 10) throw "Name should be 10 characters maximum.";
   }
 }

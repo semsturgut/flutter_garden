@@ -21,7 +21,10 @@ class AddOrEditPlantPage extends StatelessWidget with AddOrEditPlantMixin implem
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text(plant != null ? "Update Plant" : "Add Plant")),
-      body: BlocBuilder<AddOrEditPlantCubit, AddOrEditPlantState>(
+      body: BlocConsumer<AddOrEditPlantCubit, AddOrEditPlantState>(
+        listenWhen: listenWhen,
+        listener: listener,
+        buildWhen: buildWhen,
         builder: (context, state) => builder(
           context,
           state,
