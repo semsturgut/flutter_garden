@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_garden/src/domain/entities/plant.dart';
 import 'package:flutter_garden/src/presentation/add_or_edit_plant_page/add_or_edit_plant_page.dart';
 import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_cubit.dart';
 import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_state.dart';
@@ -14,7 +15,7 @@ mixin PlantListMixin {
 
   void listener(BuildContext context, PlantListState state) {
     state.maybeMap(
-      goToEditPlant: (state) => _launchEditPlantModal(context),
+      goToEditPlant: (state) => _launchEditPlantModal(context, state.plant),
       orElse: () {},
     );
   }
@@ -26,15 +27,28 @@ mixin PlantListMixin {
     final cubit = BlocProvider.of<PlantListCubit>(context);
     return state.maybeMap(
       showView: (state) => PlantListView(
-        plants: state.plants,
-        onItemTap: cubit.onItemTap,
-        onAddPlantTap: cubit.onAddPlantTap,
+        plantListViewModel: PlantListViewModel(
+          plants: state.plants,
+          loadMorePlants: cubit.loadMorePlants,
+          onItemTap: (plant) => cubit.editOrAddPlant(plant: plant),
+          hasNextPage: state.hasNextPage,
+          isLoadMoreRunning: state.isLoadMoreRunning,
+        ),
+        onAddPlantTap: cubit.editOrAddPlant,
       ),
       showError: (state) => ErrorView(reloadCallback: () => cubit.initialize()),
       orElse: () => const SizedBox(),
     );
   }
 
-  void _launchEditPlantModal(BuildContext context) => showCupertinoModalBottomSheet<void>(
-      context: context, builder: (BuildContext context) => const AddOrEditPlantPage().wrappedRoute(context));
+  void _launchEditPlantModal(BuildContext context, Plant? plant) => showCupertinoModalBottomSheet<Plant>(
+          context: context,
+          builder: (BuildContext context) => AddOrEditPlantPage(plant: plant).wrappedRoute(context)).then(
+        (plant) {
+          if (plant != null) {
+            BlocProvider.of<PlantListCubit>(context).updatePlants(plant);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(plant.name + " is saved.")));
+          }
+        },
+      );
 }

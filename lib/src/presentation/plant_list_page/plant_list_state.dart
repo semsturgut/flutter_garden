@@ -7,7 +7,11 @@ part 'plant_list_state.freezed.dart';
 class PlantListState with _$PlantListState {
   const factory PlantListState.loading() = ShowLoading;
 
-  const factory PlantListState.showView({required List<Plant> plants}) = ShowView;
+  const factory PlantListState.showView({
+    required List<Plant> plants,
+    @Default(false) bool hasNextPage,
+    @Default(false) bool isLoadMoreRunning,
+  }) = ShowView;
 
   const factory PlantListState.goToEditPlant({Plant? plant}) = GoToEditPlant;
 
