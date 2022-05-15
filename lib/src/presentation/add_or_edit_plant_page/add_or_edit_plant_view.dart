@@ -170,9 +170,12 @@ class _AddPlantButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoButton.filled(
-      child: const Text("Save"),
-      onPressed: onSave,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 40),
+      child: CupertinoButton.filled(
+        child: const Text("Save"),
+        onPressed: onSave,
+      ),
     );
   }
 }
