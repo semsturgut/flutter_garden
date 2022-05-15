@@ -8,16 +8,20 @@ const double _fabRightPadding = 30;
 
 class PlantListViewModel {
   final List<Plant> plants;
-  final Function(Plant plant) onItemTap;
+  final Function(Plant) onItemTap;
   final Function() loadMorePlants;
   final bool hasNextPage;
   final bool isLoadMoreRunning;
+  final Function(String) onSearchSubmitted;
+  final bool loading;
   const PlantListViewModel({
     required this.plants,
     required this.onItemTap,
     required this.loadMorePlants,
     required this.isLoadMoreRunning,
     required this.hasNextPage,
+    required this.onSearchSubmitted,
+    this.loading = false,
   });
 }
 
@@ -50,10 +54,21 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: _animationSwitchDuration,
-      child:
-          plantListViewModel.plants.isEmpty ? const _EmptyState() : _PlantList(plantListViewModel: plantListViewModel),
+    return Column(
+      children: [
+        _SearchBar(onSearchSubmitted: plantListViewModel.onSearchSubmitted),
+        if (plantListViewModel.loading)
+          const Center(child: CircularProgressIndicator())
+        else
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: _animationSwitchDuration,
+              child: plantListViewModel.plants.isEmpty
+                  ? const _EmptyState()
+                  : _PlantList(plantListViewModel: plantListViewModel),
+            ),
+          ),
+      ],
     );
   }
 }
@@ -94,11 +109,9 @@ class _PlantListState extends State<_PlantList> {
           ? _lastItem()
           : ListTile(
               title: Text('Name:' + widget.plantListViewModel.plants[index].name),
-              leading:
-                  Text(widget.plantListViewModel.plants[index].shortName, style: const TextStyle(fontSize: 36)),
+              leading: Text(widget.plantListViewModel.plants[index].shortName, style: const TextStyle(fontSize: 36)),
               subtitle: Text('Type:' + widget.plantListViewModel.plants[index].plantType.name.toUpperCase()),
-              trailing:
-                  Text('Date:' + widget.plantListViewModel.plants[index].plantingDate.parseToDayMonthYear()),
+              trailing: Text('Date:' + widget.plantListViewModel.plants[index].plantingDate.parseToDayMonthYear()),
               onTap: () => widget.plantListViewModel.onItemTap(widget.plantListViewModel.plants[index]),
             ),
     );
@@ -126,6 +139,29 @@ class _PlantListState extends State<_PlantList> {
       );
     }
     return const SizedBox(height: 40);
+  }
+}
+
+class _SearchBar extends StatelessWidget {
+  final Function(String) onSearchSubmitted;
+  const _SearchBar({
+    required this.onSearchSubmitted,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: TextFormField(
+        onFieldSubmitted: onSearchSubmitted,
+        decoration: const InputDecoration(
+          hintText: "Search plants...",
+          border: OutlineInputBorder(),
+          suffixIcon: Icon(Icons.search),
+        ),
+      ),
+    );
   }
 }
 

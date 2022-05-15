@@ -5,10 +5,10 @@ part 'plant_list_state.freezed.dart';
 
 @freezed
 class PlantListState with _$PlantListState {
-  const factory PlantListState.loading() = ShowLoading;
-
   const factory PlantListState.showView({
     required List<Plant> plants,
+    required String searchFieldValue,
+    @Default(true) bool loading,
     @Default(false) bool hasNextPage,
     @Default(false) bool isLoadMoreRunning,
   }) = ShowView;

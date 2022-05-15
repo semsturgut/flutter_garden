@@ -3,16 +3,17 @@ import 'package:flutter_garden/src/domain/entities/plant.dart';
 
 const int plantsPageLimit = 10;
 const String _plantsTableName = 'Plant';
+const String baseTable = "SELECT * FROM $_plantsTableName";
 
 @dao
 abstract class PlantDao {
-  @Query('SELECT * FROM $_plantsTableName LIMIT $plantsPageLimit OFFSET :offset')
+  @Query("$baseTable LIMIT $plantsPageLimit OFFSET :offset")
   Future<List<Plant>> findAllPlants(int offset);
 
-  @Query('SELECT * FROM $_plantsTableName WHERE name LIKE :name')
+  @Query("$baseTable WHERE name LIKE :name")
   Future<List<Plant>> findPlantsByName(String name);
 
-  @Query('SELECT * FROM $_plantsTableName WHERE id = :id')
+  @Query("$baseTable WHERE id = :id")
   Future<Plant?> findPlantById(int id);
 
   @Insert(onConflict: OnConflictStrategy.replace)

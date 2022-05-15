@@ -33,6 +33,8 @@ mixin PlantListMixin {
           onItemTap: (plant) => cubit.editOrAddPlant(plant: plant),
           hasNextPage: state.hasNextPage,
           isLoadMoreRunning: state.isLoadMoreRunning,
+          onSearchSubmitted: cubit.searchPlantName,
+          loading: state.loading,
         ),
         onAddPlantTap: cubit.editOrAddPlant,
       ),

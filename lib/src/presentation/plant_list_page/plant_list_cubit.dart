@@ -9,12 +9,20 @@ import 'plant_list_state.dart';
 
 class PlantListCubit extends Cubit<PlantListState> {
   final PlantsService _plantsService;
-  PlantListCubit(this._plantsService) : super(const ShowLoading());
+  PlantListCubit(this._plantsService)
+      : super(const ShowView(
+          plants: [],
+          searchFieldValue: "",
+          loading: true,
+        ));
 
   List<Plant> _plants = [];
+  late List<Plant> _filteredPlants;
+  late String _searchFieldValue;
+  late bool _hasNextPage;
+  late bool _isLoadMoreRunning;
+
   int _pageIndex = 1;
-  bool _hasNextPage = true;
-  bool _isLoadMoreRunning = false;
 
   Future<void> initialize() async {
     await _loadInitialPlants();
@@ -33,10 +41,15 @@ class PlantListCubit extends Cubit<PlantListState> {
     } else if (plantExist) {
       _plants[_plants.indexWhere((element) => element.id == plant.id)] = plant;
     }
+    if (!_isSearchFieldEmpty) {
+      searchPlantName(_searchFieldValue);
+      return;
+    }
     _showView();
   }
 
   Future<void> loadMorePlants() async {
+    if (!_isSearchFieldEmpty) return;
     try {
       _isLoadMoreRunning = true;
       _showView();
@@ -51,13 +64,32 @@ class PlantListCubit extends Cubit<PlantListState> {
     }
   }
 
-  Future<void> editOrAddPlant({Plant? plant}) async {
+  Future<void> searchPlantName(String name) async {
+    _searchFieldValue = name;
+    try {
+      _showView(loading: true);
+      if (_isSearchFieldEmpty) {
+        _showView();
+        return;
+      }
+      _filteredPlants = await _plantsService.findPlantsByName(name);
+      _showView(filteredPlants: _filteredPlants);
+    } catch (_) {
+      emit(const ShowError());
+    }
+  }
+
+  void editOrAddPlant({Plant? plant}) {
     emit(GoToEditPlant(plant: plant));
-    _showView();
+    _isSearchFieldEmpty ? _showView() : _showView(filteredPlants: _filteredPlants);
   }
 
   Future<void> _loadInitialPlants() async {
     try {
+      _filteredPlants = [];
+      _searchFieldValue = "";
+      _hasNextPage = true;
+      _isLoadMoreRunning = false;
       _plants = await _plantsService.getSavedPlants();
       _showView();
     } catch (_) {
@@ -65,11 +97,15 @@ class PlantListCubit extends Cubit<PlantListState> {
     }
   }
 
-  void _showView() {
+  void _showView({bool loading = false, List<Plant>? filteredPlants}) {
     emit(ShowView(
-      plants: List.from(_plants),
+      plants: List.from(filteredPlants ?? _plants),
       isLoadMoreRunning: _isLoadMoreRunning,
       hasNextPage: _hasNextPage,
+      searchFieldValue: _searchFieldValue,
+      loading: loading,
     ));
   }
+
+  bool get _isSearchFieldEmpty => _searchFieldValue == "";
 }

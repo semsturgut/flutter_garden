@@ -13,7 +13,7 @@ class PlantsServiceImpl implements PlantsService {
       _plantsRepository.getSavedPlants(pageIndex * plantsPageLimit);
 
   @override
-  Future<List<Plant>> findPlantsByName(String name) => _plantsRepository.findPlantsByName(name);
+  Future<List<Plant>> findPlantsByName(String name) => _plantsRepository.findPlantsByName('%' + name + '%');
 
   @override
   Future<void> insertOrUpdatePlant(Plant plant) async {
