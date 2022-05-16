@@ -26,3 +26,7 @@ To run tests:
 ```
 flutter test
 ```
+
+Example video:
+
+https://drive.google.com/file/d/19am3qVb8ckXvX8c5qNrXyCz3o8gLxpNm/view?usp=sharing
