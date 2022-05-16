@@ -1,4 +1,5 @@
 import 'package:floor/floor.dart';
+import 'package:mocktail/mocktail.dart';
 
 @entity
 class Plant {
@@ -47,3 +48,6 @@ enum PlantType {
   grasses,
   trees,
 }
+
+
+class FakePlant extends Fake implements Plant {}
