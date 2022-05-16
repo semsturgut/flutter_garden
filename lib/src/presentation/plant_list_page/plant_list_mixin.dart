@@ -5,6 +5,7 @@ import 'package:flutter_garden/src/presentation/add_or_edit_plant_page/add_or_ed
 import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_cubit.dart';
 import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_state.dart';
 import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_view.dart';
+import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_view_model.dart';
 import 'package:flutter_garden/src/presentation/widgets/error_view.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 

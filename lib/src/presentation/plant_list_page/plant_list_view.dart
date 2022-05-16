@@ -1,29 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_garden/src/core/extensions/date_time_extension.dart';
-import 'package:flutter_garden/src/domain/entities/plant.dart';
+import 'package:flutter_garden/src/presentation/plant_list_page/plant_list_view_model.dart';
+import 'package:flutter_garden/src/presentation/widgets/add_plant_button.dart';
+import 'package:flutter_garden/src/presentation/widgets/empty_plant_state.dart';
+import 'package:flutter_garden/src/presentation/widgets/plant_list.dart';
+import 'package:flutter_garden/src/presentation/widgets/search_bar.dart';
 
 const Duration _animationSwitchDuration = Duration(milliseconds: 300);
-const double _fabBottomPadding = 60;
-const double _fabRightPadding = 30;
-
-class PlantListViewModel {
-  final List<Plant> plants;
-  final Function(Plant) onItemTap;
-  final Function() loadMorePlants;
-  final bool hasNextPage;
-  final bool isLoadMoreRunning;
-  final Function(String) onSearchSubmitted;
-  final bool loading;
-  const PlantListViewModel({
-    required this.plants,
-    required this.onItemTap,
-    required this.loadMorePlants,
-    required this.isLoadMoreRunning,
-    required this.hasNextPage,
-    required this.onSearchSubmitted,
-    this.loading = false,
-  });
-}
 
 class PlantListView extends StatelessWidget {
   final PlantListViewModel plantListViewModel;
@@ -39,7 +21,7 @@ class PlantListView extends StatelessWidget {
     return Stack(
       children: [
         _Body(plantListViewModel: plantListViewModel),
-        _AddPlantButton(onAddPlantTap: onAddPlantTap),
+        AddPlantButton(onAddPlantTap: onAddPlantTap),
       ],
     );
   }
@@ -56,142 +38,19 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _SearchBar(onSearchSubmitted: plantListViewModel.onSearchSubmitted),
+        SearchBar(onSearchSubmitted: plantListViewModel.onSearchSubmitted),
         if (plantListViewModel.loading)
-          const Center(child: CircularProgressIndicator())
+          const Center(child: Text("Loading..."))
         else
           Expanded(
             child: AnimatedSwitcher(
               duration: _animationSwitchDuration,
               child: plantListViewModel.plants.isEmpty
-                  ? const _EmptyState()
-                  : _PlantList(plantListViewModel: plantListViewModel),
+                  ? const EmptyState()
+                  : PlantList(plantListViewModel: plantListViewModel),
             ),
           ),
       ],
-    );
-  }
-}
-
-class _PlantList extends StatefulWidget {
-  final PlantListViewModel plantListViewModel;
-  const _PlantList({
-    required this.plantListViewModel,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<_PlantList> createState() => _PlantListState();
-}
-
-class _PlantListState extends State<_PlantList> {
-  late ScrollController scrollController;
-
-  @override
-  void initState() {
-    scrollController = ScrollController()..addListener(_paginationListener);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    scrollController.removeListener(_paginationListener);
-    scrollController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: scrollController,
-      itemCount: widget.plantListViewModel.plants.length + 1,
-      itemBuilder: (context, index) => (index == widget.plantListViewModel.plants.length)
-          ? _lastItem()
-          : ListTile(
-              title: Text('Name:' + widget.plantListViewModel.plants[index].name),
-              leading: Text(widget.plantListViewModel.plants[index].shortName, style: const TextStyle(fontSize: 36)),
-              subtitle: Text('Type:' + widget.plantListViewModel.plants[index].plantType.name.toUpperCase()),
-              trailing: Text('Date:' + widget.plantListViewModel.plants[index].plantingDate.parseToDayMonthYear()),
-              onTap: () => widget.plantListViewModel.onItemTap(widget.plantListViewModel.plants[index]),
-            ),
-    );
-  }
-
-  void _paginationListener() {
-    if (widget.plantListViewModel.isLoadMoreRunning == false &&
-        widget.plantListViewModel.hasNextPage == true &&
-        scrollController.position.pixels == scrollController.position.maxScrollExtent) {
-      widget.plantListViewModel.loadMorePlants();
-    }
-  }
-
-  Widget _lastItem() {
-    if (widget.plantListViewModel.isLoadMoreRunning == true) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 10, bottom: 40),
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-    if (widget.plantListViewModel.hasNextPage == false) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 10, bottom: 100),
-        child: Center(child: Text('You have fetched all plants already.')),
-      );
-    }
-    return const SizedBox(height: 40);
-  }
-}
-
-class _SearchBar extends StatelessWidget {
-  final Function(String) onSearchSubmitted;
-  const _SearchBar({
-    required this.onSearchSubmitted,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: TextFormField(
-        onFieldSubmitted: onSearchSubmitted,
-        decoration: const InputDecoration(
-          hintText: "Search plants...",
-          border: OutlineInputBorder(),
-          suffixIcon: Icon(Icons.search),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text("Please add plants"));
-  }
-}
-
-class _AddPlantButton extends StatelessWidget {
-  final VoidCallback onAddPlantTap;
-  const _AddPlantButton({
-    required this.onAddPlantTap,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      bottom: _fabBottomPadding,
-      right: _fabRightPadding,
-      child: FloatingActionButton.extended(
-        label: const Text("+ Add plant"),
-        onPressed: onAddPlantTap,
-      ),
     );
   }
 }

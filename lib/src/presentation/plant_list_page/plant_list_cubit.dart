@@ -30,16 +30,17 @@ class PlantListCubit extends Cubit<PlantListState> {
 
   void updatePlants(Plant plant) {
     final plantExist = _plants.any((element) => element.id == plant.id);
-    if (!_hasNextPage && !plantExist) {
+    if (plantExist) {
+      _plants[_plants.indexWhere((element) => element.id == plant.id)] = plant;
+    } else if (_plants.length < 10 || !_hasNextPage) {
+      final latestId = _plants.isNotEmpty ? _plants.last.id! : 0;
       final newPlant = Plant(
-        id: _plants.last.id! + 1,
+        id: latestId + 1,
         name: plant.name,
         plantType: plant.plantType,
         plantingDate: plant.plantingDate,
       );
       _plants.add(newPlant);
-    } else if (plantExist) {
-      _plants[_plants.indexWhere((element) => element.id == plant.id)] = plant;
     }
     if (!_isSearchFieldEmpty) {
       searchPlantName(_searchFieldValue);
